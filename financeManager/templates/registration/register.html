@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+    {% if error %}
+        <p style="color:red">{{error}}. Please register again.</p>
+    {% endif %}
+	
+	<form method="post" action="">
+    	<h2>Registration Info..</h2>
+        {% csrf_token %}
+       	 <div class="form-group col-md-4">
+                {{ register.firstname.label_tag }}
+                {{ register.firstname }}
+          </div>
+           <div class="form-group col-md-4">
+                {{ register.lastname.label_tag }}
+                {{ register.lastname }}
+           </div> 
+            <div class="form-group col-md-4">
+                {{ register.username.label_tag }}
+                {{ register.username|attr:"required:True" }}
+            </div>
+            <div class="form-group col-md-4">
+                {{ register.email.label_tag }}
+                {{ register.email|attr:"required:True" }}
+           </div> 
+            <div class="form-group col-md-4 ">
+                {{ register.password.label_tag }}
+                {{ register.password|attr:"required:True" }}
+            </div>
+            <div class="form-group col-md-4">
+                {{ register.confirm_password.label_tag }}
+                {{ register.confirm_password|attr:"required:True" }}
+             </div>
+            <div class="form-group col-sm-offset-9 col-md-3">
+        	    <input class="btn btn-md btn-primary btn-block" type="submit" value="Signup"/>
+        	</div>
+    </form>
+
+{% endblock %}

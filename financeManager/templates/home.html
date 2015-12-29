@@ -1,0 +1,158 @@
+{% extends "base.html" %} 
+{% load staticfiles %} 
+{% load widget_tweaks %}
+{% block js %}
+<script type="text/javascript" src="{% static 'js/script.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqueryUi.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery.tablesorter.js' %}"></script>
+{% endblock %} 
+{% block css %}
+<link rel="stylesheet" type="text/css"
+	href="{% static 'css/style.css' %}" />
+{% endblock %} 
+{% block content %}
+
+<body>
+	<div class="container">
+		<div class="col-md-2">
+				<form  id ="add" action="/add/" method="add">
+					<input type="submit" class="form-control btn btn-sm btn-primary" title="Add New Policy Or Account" name="add" value="Add Policy/Account" />
+				</form>
+			</div>
+		<div class="btn-group col-sm-offset-9">
+			<button type="button" class="btn btn-sm btn-primary">Settings</button>
+			<button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  					<span class="caret"></span>
+ 					<span class="sr-only">Toggle Dropdown</span>
+			</button>
+		  <ul class="dropdown-menu" >
+		    <li><a href="/profile/1">Profile</a></li>
+		    <li><a href="/profile/2">Change Password</a></li>
+		    <li role="separator" class="divider"></li>
+		    <li><a href="/logout/">Log Out</a></li>
+		  </ul>
+		</div>
+		<h3>Welcome {{username}} !!</h3>
+		
+		{% if not enableAdd %}
+		<div class="panel panel-primary" id="mainPanel">
+			<div class="panel-heading">
+				<h3 class="panel-title">New policy details</h3>
+			</div>
+			<div class="panel-body">
+				<form action="/add/" method="POST" class="form-horizontal" role="form" >
+					{% csrf_token %}
+					 <div class="form-group col-md-6" >
+						{{ forms.name.errors }}
+							<label  class="control-label col-md-6" for="{{ forms.name.id_for_label }}">Policy Holder
+								Name :</label>
+						<div class="col-md-6">{{ forms.name|add_class:"form-control"|attr:"required:True"}}</div>
+					</div>
+					 <div class="form-group col-md-6">
+						{{ forms.policyNumber.errors }}
+							<label  class="control-label col-md-6" for="{{ forms.policyNumber.id_for_label }}">Policy
+								Number :</label>
+						<div class="col-md-6">{{ forms.policyNumber|add_class:"form-control"|attr:"required:True" }}</div>
+					</div>
+					 <div class="form-group col-md-6">
+						{{ forms.financetype.errors }}
+							<label  class="control-label col-md-6" for="{{ forms.financetype.id_for_label }}">Finance
+								Type :</label>
+						<div class="col-md-6">{{ forms.financetype|add_class:"form-control"|attr:"required:True" }}</div>
+					</div>
+					 <div class="form-group col-md-6">
+						{{ forms.amount.errors }}
+							<label  class="control-label col-md-6" for="{{ forms.amount.id_for_label }}">Amount (In Rs.) :</label>
+						<div class="col-md-6">{{ forms.amount|add_class:"form-control" |attr:"required:True"}}</div>
+					</div>
+					 <div class="form-group col-md-6" >
+						{{ forms.issueDate.errors }}
+							<label  class="control-label col-md-6" for="{{ forms.issueDate.id_for_label }}">Start
+								Date :</label>
+						<div class="col-md-6">{{ forms.issueDate |add_class:"form-control"|attr:"required:True"}}</div>
+					</div>
+					 <div class="form-group col-md-6">
+						{{ forms.maturityDate.errors }}
+							<label  class="control-label col-md-6" for="{{ forms.maturityDate.id_for_label }}">Maturity
+								Date :</label>
+						<div class="col-md-6">{{ forms.maturityDate|add_class:"form-control"|attr:"required:True" }}</div>
+					</div>
+					 <div class="form-group col-md-6">
+						{{ forms.remarks.errors }}
+							<label  class="control-label col-md-6" for="{{ forms.remarks.id_for_label }}">Note :</label>
+						<div class="col-md-6">{{ forms.remarks |add_class:"form-control" }}</div>
+					 </div>
+					 
+					 <div class="col-sm-offset-4 col-md-6">
+							<div class="col-md-2">
+								<input type="submit" class="btn btn-sm btn-primary" value="Save" />
+							</div>
+							<div class="col-md-2">
+								<input type="reset" class="btn btn-sm btn-primary" value="Reset" />
+							</div>
+							<div class="col-md-2">
+								<span>
+									<input type="button" id ="close" class="btn btn-sm btn-primary" onClick="closePanel()" value="Close" />
+					 			</span>
+					 		</div>
+					 </div>
+				</form>
+			</div>
+		</div>
+		{% endif %}
+		</div>
+		
+		<div class="container" >
+			
+			<div class="col-sm-2 dropdown">
+				Show
+			  	<select  id="entries">
+  				  <option value="5" selected>5</option>
+				  <option value="10">10</option>
+				  <option value="25">25</option>
+				  <option value="50">50</option>
+				</select>
+				Entries
+			</div>
+			<div class="col-sm-offset-8 col-sm-2">
+					<form class="form-horizontal" role="search">
+	         			<input type="text" class="form-control input-sm" placeholder="Search e.g Name, Acc.Number" id="searchTerm">
+	      			</form>
+      		</div>
+      		
+		<table id="data" class="table table-striped tablesorter" >
+			<thead>
+				<tr>
+					<th>Policy Holder Name</th>
+					<th>Investment Type</th>
+					<th>Investment Number</th>
+					<th>Amount</th>
+					<th>Issue Date</th>
+					<th>Maturity Date</th>
+					<th>Notes</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for policy in policyDetails %}
+				<tr>
+					<td class="editable">{{policy.name}}</td>
+					<td class="changetoSelectBox">{{policy.financeType}}</td>
+					<td>{{policy.policyNumber}}</td>
+					<td class="editable">{{policy.amount}}</td>
+					<td class="dateEditable" id="issueDate_{{forloop.counter}}">{{policy.issueDate |date:"Y-m-d"}}</td>
+					<td class="dateEditable" id="maturityDate_{{forloop.counter}}">{{policy.maturityDate|date:"Y-m-d"}}</td>
+					<td class="editable">{{policy.remarks}}</td>
+					<td>
+							<div class="col-md-6">
+         				 <span id="update{{forloop.counter}}" class="glyphicon glyphicon-pencil" style="color:blue"  title="Update Record" ></span> 
+         				 	</div>
+         				 <span id="delete{{forloop.counter}}" class="glyphicon glyphicon-remove "style="color:red"  title="Delete Record"></span>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</body>
+{% endblock %}
